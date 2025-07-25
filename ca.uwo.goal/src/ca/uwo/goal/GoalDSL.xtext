@@ -1,0 +1,88 @@
+grammar ca.uwo.goal.GoalDSL with org.eclipse.xtext.common.Terminals
+
+generate goalDSL "http://www.uwo.ca/goal/GoalDSL"
+
+GoalSpecification: 
+	'goal' 
+	name=STRING
+	'{'
+		root=Root
+	'}'	
+;
+
+Root:
+	{Root} (actors += Actor)*
+	(dependencies += Dependency)*
+;
+
+IntentionalElement:
+	GoalTaskElement | Resource
+;
+
+GoalTaskElement:
+	 Goal  | Task   
+;
+
+Actor: 
+	'actor' name= ID
+	(
+		';' |
+		('{'
+		(intentionalElements+=IntentionalElement)* 
+		(contribution+=Contribution)* 
+		'}')
+	)
+;
+
+Goal:
+	'goal' name = ID
+	(
+		';' |
+		(
+		'decomposesTo' '('decompositionType=DecompositionType')'
+		'{'(chilldren+=GoalTaskElement)*'}' ';'
+		(parent = [GoalTaskElement])?
+		
+		)
+	)
+; 
+Task:
+	'task' name = ID
+	(
+		';' | 
+		(
+		'decomposesTo' '('decompositionType=DecompositionType')'
+		'{'(chilldren+=GoalTaskElement)*'}' ';'
+		(parent = [GoalTaskElement])?
+		)
+	)
+;  
+Resource:
+	'resource' name = ID 
+	(
+		'neededBy' dest+=[Task|QualifiedName] (','dest+=[Task|QualifiedName])* 
+	)
+	
+; 
+
+Contribution:
+	src=[IntentionalElement|QualifiedName] 'contributesTo' '('contributionType=ContributionType')' 
+	dest+=[GoalTaskElement|QualifiedName]  (','dest+=[GoalTaskElement|QualifiedName])* 
+;
+
+Dependency:
+	src=[IntentionalElement|QualifiedName] 'dependsOn' 
+	dest+=[IntentionalElement|QualifiedName]  (','dest+=[IntentionalElement|QualifiedName])* 
+;
+
+enum DecompositionType:
+	AND='and'| OR='or'  
+;
+
+enum ContributionType: 
+	MAKE='++S' | BREAK='--S' | NEGATION_MAKE='++D' | NEGATION_BREAK='--D'
+;
+
+QualifiedName:
+ID ('.' ID)*
+;
