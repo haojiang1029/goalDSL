@@ -1,1 +1,1 @@
-DSL for generating Alloy code from Goal Models.
+Transformer for generating Alloy code from Goal Models.
