@@ -1,1 +1,1 @@
-DSL for generating Alloy code from Goal Models
+DSL for generating Alloy code from Goal Models.
